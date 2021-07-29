@@ -1,5 +1,0 @@
-example_password
-Password - 
-Name - gmail
-Url - www.example.com
-Username - example_username
