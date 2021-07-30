@@ -91,9 +91,12 @@ def word2num(word, random_number_list):
 		s += int(random_number_list[symbols.index(i)]) * word.index(i)
 	return s
 	
-# extract the service name from random file.
+# extract the service name from a file.
 def extract_service(service):
-	return service.split('.')[0][7:]
+	if service.split('.')[0][:6] == 'random':
+		return service.split('.')[0][7:]
+	else:
+		return service.split('.')[0]
 
 
 # printing data from a file.	
@@ -264,7 +267,7 @@ user_password = getpass.getpass(option_symbol + ' Master password :')
 
 while True:
 	
-	user_input = input('Enter \n'								+ arrow_symbol +' filename to decrypt \n'+ arrow_symbol + ' +p to add a new password\n' + arrow_symbol + ' +sn to add a secure note\n' + arrow_symbol + ' c to change your Master Password\n'+ arrow_symbol +' q to quit :')
+	user_input = input('Enter \n'								+ arrow_symbol +' filename to decrypt \n'+ arrow_symbol + ' +p to add a new password\n' + arrow_symbol + ' +sn to add a secure note\n' + arrow_symbol + ' c to change your Master Password\n'+ arrow_symbol + ' -d to delete a file\n' + arrow_symbol + ' q to quit :')
 	if user_input == 'q':
 	
 		path = cwd + '/decrypted/'
@@ -392,6 +395,60 @@ while True:
 		secure_note_file = open(secure_note_name + '.txt', 'w')
 		secure_note_file.write(secure_note)
 		secure_note_file.close()
+		
+	elif user_input == '-d':
+			
+		# checking if the file is there.
+		path = cwd + '/random/'
+		os.chdir(path)
+		# list all text file in random folder.
+		textfile_list_random = [f for f in glob.glob("*.txt")]
+		
+		# list all text file in decrypted folder.
+		path = cwd + '/decrypted/'
+		os.chdir(path)
+		textfile_list_decrypted = [f for f in glob.glob("*.txt")]
+		
+		# list has all service name from random folder.
+		service_list_random = []
+		for file in textfile_list_random:
+			service_list_random.append(extract_service(file))
+			
+		# list all service from decrypted folder.
+		service_list_decrypted = []
+		for file in textfile_list_decrypted:
+			service_list_decrypted.append(extract_service(file))
+			
+		# deleting an encrypted file.	
+		while True:	
+			filename = input('Enter file name to delete :')
+			if filename in service_list_random:
+				decrypt_file(filename + '.txt', username, user_password)
+				while True:
+					verification = getpass.getpass('To delete the file re enter your master password :')
+					if verification == user_password :
+						path = cwd + '/decrypted/'
+						os.chdir(path)
+						os.remove(filename + '.txt')
+						break
+					else:
+						print('re enter master password')
+				break
+				
+			# deleting an decrypted file.	
+			elif filename in service_list_decrypted:
+				while True:
+					verification = getpass.getpass('To delete the file re enter your master password :')
+					if verification == user_password :
+						path = cwd + '/decrypted/'
+						os.chdir(path)
+						os.remove(filename + '.txt')
+						break
+					else:
+						print('re enter master password')
+				break
+			else:			
+				print('re enter file name')
 		
 	else:
 		decrypt_file(user_input + '.txt', username, user_password)
